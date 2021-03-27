@@ -5,11 +5,11 @@ const authenticate = require('../authenticate');
 const cors = require('./cors');
 // const { authenticate } = require('../models/user');
 
-const userRouter = express.Router();
+const usersRouter = express.Router();
 
 
 /* GET users listing. */
-userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
+usersRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
     User.find()
     .then(users => {
         res.statusCode = 200;
@@ -19,7 +19,7 @@ userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.
     .catch(err => next(err));
 });
 
-userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
+usersRouter.post('/signup', cors.corsWithOptions, (req, res) => {
     User.register(
         new User({username: req.body.username}),
         req.body.password,
@@ -53,14 +53,14 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res) => {
     );
     });
 
-userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
+usersRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
     const token = authenticate.getToken({_id: req.user._id});
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json({success: true, token: token, status: 'You are successfully logged in!'});
 });
 
-userRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
+usersRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
     if (req.session) {
         req.session.destroy();
         res.clearCookie('session-id');
@@ -72,4 +72,13 @@ userRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
     }
 });
 
-module.exports = userRouter;
+usersRouter.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+    if (req.user) {
+        const token = authenticate.getToken({_id: req.user._id});
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: true, token: token, status: 'You are successfully logged in!'});
+    }
+});
+
+module.exports = usersRouter;
