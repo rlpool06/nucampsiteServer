@@ -176,7 +176,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
         if (campsite && campsite.comments.id(req.params.commentId)) {
             if (
                 campsite.comments
-                    .id(req.params.commenId)
+                    .id(req.params.commentId)
                     .author._id.equals(req.user._id)
             ){
                 if (req.body.rating) {
